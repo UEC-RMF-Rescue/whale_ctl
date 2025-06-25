@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'motor_driver'
+package_name = 'whale_ctl'
 
 setup(
     name=package_name,
@@ -20,11 +20,11 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'motor_driver = motor_driver.motor_driver_node:main',
-            'motor_pwm_toggle = motor_driver.motor_pwm_toggle:main',
-            'motor_pwm_gradient = motor_driver.motor_pwm_gradient:main',
-            'motor_pwm_button_control = motor_driver.motor_pwm_button_control:main',
-            'multi_motor_control = motor_driver.multi_motor_control:main',
+            'motor_driver =  whale_ctl.motor_driver_node:main',
+            'motor_pwm_toggle = whale_ctl.motor_pwm_toggle:main',
+            'motor_pwm_gradient = whale_ctl.motor_pwm_gradient:main',
+            'motor_pwm_button_control = whale_ctl.motor_pwm_button_control:main',
+            'multi_motor_control = whale_ctl.multi_motor_control:main',
         ],
     },
 )
