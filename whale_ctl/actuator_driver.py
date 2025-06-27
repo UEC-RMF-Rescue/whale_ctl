@@ -12,7 +12,7 @@ class ActuatorDriver(Node):
         # 4 モーターの DIR / PWM ピン定義（ID: {dir, pwm}）
         self.motor_pins = {
             0: {'dir': 8,  'pwm': 27},
-            1: {'dir': 24, 'pwm': 13},
+            1: {'dir': 18, 'pwm': 12},
             2: {'dir': 25, 'pwm': 16},
             3: {'dir': 26, 'pwm': 20},
         }
@@ -50,17 +50,21 @@ class ActuatorDriver(Node):
         wheel_speeds = generate_motor_cmd(v_x, v_y, v_yaw)
 
         # ステップ3: ランピングしてモーターへ vel 指令
+        # step3: move motor according to moto cmd
         for motor_id, norm_vel in enumerate(wheel_speeds):
-            target = norm_vel * 100  # -100〜100
-            curr = self.current_vel[motor_id]
-            diff = target - curr
+            # target = norm_vel * 100  # -100〜100
+            # curr = self.current_vel[motor_id]
+            # diff = target - curr
             # 目標との絶対差に応じてステップ更新
-            if abs(diff) <= self.ramp_step:
-                curr = target
-            else:
-                curr += self.ramp_step * (1 if diff > 0 else -1)
-            self.current_vel[motor_id] = curr
-            self.move_motor(motor_id, curr)
+            # if abs(diff) <= self.ramp_step:
+            #     curr = target
+            # else:
+            #     curr += self.ramp_step * (1 if diff > 0 else -1)
+            # self.current_vel[motor_id] = curr
+            # self.move_motor(motor_id, curr)
+            self.move_motor(motor_id, wheel_speeds[motor_id])
+            self.get_logger().info("move motor at {wheel_speeds[motor_id]}")
+        
 
     def move_motor(self, motor_id: int, vel: float):
         """
@@ -77,9 +81,8 @@ class ActuatorDriver(Node):
         GPIO.output(pins['dir'], GPIO.HIGH if vel < 0 else GPIO.LOW)
         self.pwms[motor_id].ChangeDutyCycle(duty)
 
-        self.get_logger().debug(
-            f"[motor{motor_id}] vel={vel:.1f}% → duty={duty:.1f}%"
-        )
+        # self.get_logger().info(f"[motor{motor_id}] set vel={vel:.1f}, duty={duty}%, dir={'HIGH (reverse)' if vel < 0else 'LOW (forward)'}")
+        # self.get_logger().debug(f"[motor{motor_id}] vel={vel:.1f}% → duty={duty:.1f}%")
 
     def destroy_node(self):
         self.get_logger().info("Shutting down — stopping all motors & cleaning up GPIO")

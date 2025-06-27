@@ -25,6 +25,8 @@ setup(
             'motor_pwm_gradient = whale_ctl.motor_pwm_gradient:main',
             'motor_pwm_button_control = whale_ctl.motor_pwm_button_control:main',
             'multi_motor_control = whale_ctl.multi_motor_control:main',
+            'actuator_driver = whale_ctl.actuator_driver:main',
+            'a1_motor_test = whale_ctl.a1_motor_test:main',
         ],
     },
 )
