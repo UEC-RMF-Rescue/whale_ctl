@@ -4,6 +4,7 @@ from sensor_msgs.msg import CompressedImage
 from orca_msg.srv import JpegImage
 import subprocess
 import os
+from ament_index_python.packages import get_package_share_directory
 
 SIM = False
 
@@ -11,10 +12,11 @@ class CamFbNode(Node):
     def __init__(self):
         super().__init__('cam_fb')
 
-        ####################################################
         # whale cam data as jpg
         self.latest_image = b''
+        self.img_name = "latest_image.jpg"
 
+        ####################################################
         # subscriber
         self.image_subscription = self.create_subscription(
             CompressedImage,
@@ -30,6 +32,10 @@ class CamFbNode(Node):
             '/capture',
             self.capture_callback
         )
+
+        pkg_path = get_package_share_directory('whale_ctl')
+        img_dir = os.path.join(pkg_path, 'image')
+        self.img_path = os.path.join(img_dir, self.img_name)
 
     ####################################################
     def image_callback(self, msg: CompressedImage):
@@ -50,13 +56,16 @@ class CamFbNode(Node):
         else:
             try:
                 result = subprocess.run(
-                    ['fswebcam', '-r', '1280x720', '--jpeg', '95', '-D', '1', '--stdout'],
+                    ['fswebcam', '-r', '1280x720', '--jpeg', '95', '-D', '1', self.img_path],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     check=True
                 )
+
                 self.get_logger().info("Image captured successfully.")
-                response.image.data = result.stdout
+                # read as binary
+                with open(self.img_path, 'rb') as f:
+                    response.image.data = f.read
 
             except subprocess.CalledProcessError as e:
                 self.get_logger().error(f"image capture failed: {e.stderr.decode().strip()}")
