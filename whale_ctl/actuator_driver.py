@@ -5,6 +5,9 @@ import RPi.GPIO as GPIO
 
 from whale_ctl.mecanum_ctl import generate_motor_cmd
 
+FORW = 0
+BACK = 1
+
 class ActuatorDriver(Node):
     def __init__(self):
         super().__init__('actuator_driver')
@@ -15,10 +18,10 @@ class ActuatorDriver(Node):
             1: {'dir': 18, 'pwm': 12},
             2: {'dir': 25, 'pwm': 16},
             3: {'dir': 26, 'pwm': 20},
+            4: {'dir': 6,  'pwm': 5},  # chain
         }
-        self.chain_pin = {'dir': 6, 'pwm': 5}
 
-        # GPIO 初期化
+        # GPIO setup
         GPIO.setmode(GPIO.BCM)
         self.pwms = {}
         for mid, pins in self.motor_pins.items():
@@ -36,11 +39,14 @@ class ActuatorDriver(Node):
             Joy, 'joy', self.joy_callback, 10)
         self.get_logger().info('Subscribed to /joy — actuator driver ready')
 
+        # chain control
+        self.power = 0.2
+
     def joy_callback(self, msg: Joy):
         # axis[1] : v_x, axis[0] : v_y, axis[3] : v_yaw
-        v_x   = msg.axes[1] * 100    # 前後: 上 +1 → +100%
-        v_y   = msg.axes[0] * 100    # 左右: 右 +1 → +100%
-        v_yaw = msg.axes[3] * 100    # 回転: 右 +1 → +100%
+        v_x   = msg.axes[1] * 100
+        v_y   = msg.axes[0] * 100
+        v_yaw = msg.axes[3] * 100
 
         wheel_speeds = generate_motor_cmd(v_x, v_y, v_yaw)
         self.get_logger().info(f"cmd: {wheel_speeds[0]}, {wheel_speeds[1]}, {wheel_speeds[2]}, {wheel_speeds[3]}")
@@ -49,6 +55,19 @@ class ActuatorDriver(Node):
         for vel in wheel_speeds:
             self.move_motor(i, vel)
             i+=1
+
+        # button up
+        if msg.button[7] == -1:
+            self.move_motor(4, 100*self.power)
+            self.get_logger().info("chain forward")
+        # button down
+        elif msg.button[5] == 1:
+            self.move_motor(4, -100*self.power)
+            self.get_logger().info("chain backward")
+        else:
+            self.move_motor(4, 0)
+            self.get_logger().info("chain stop")
+            
 
     def move_motor(self, motor_id: int, vel: float):
         if motor_id not in self.motor_pins:
