@@ -5,9 +5,6 @@ import RPi.GPIO as GPIO
 
 from whale_ctl.mecanum_ctl import generate_motor_cmd
 
-FORW = 0
-BACK = 1
-
 class ActuatorDriver(Node):
     def __init__(self):
         super().__init__('actuator_driver')
