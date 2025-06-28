@@ -17,6 +17,5 @@ def generate_motor_cmd(v_x, v_y, v_yaw):
     max_val = max(numpy.max(numpy.abs(motors)), 1.0)
     if max_val > 100:
         motors = motors * 100 / max_val
-    # motors = motors / max_val
 
     return motors.tolist() 
