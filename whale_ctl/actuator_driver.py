@@ -46,7 +46,7 @@ class ActuatorDriver(Node):
         # axis[1] : v_x, axis[0] : v_y, axis[3] : v_yaw
         v_x   = msg.axes[1] * 100
         v_y   = msg.axes[0] * 100
-        v_yaw = msg.axes[3] * 100
+        v_yaw = msg.axes[2] * 100
 
         wheel_speeds = generate_motor_cmd(v_x, v_y, v_yaw)
         self.get_logger().info(f"cmd: {wheel_speeds[0]}, {wheel_speeds[1]}, {wheel_speeds[2]}, {wheel_speeds[3]}")
@@ -57,11 +57,11 @@ class ActuatorDriver(Node):
             i+=1
 
         # button up
-        if msg.button[7] == -1:
+        if msg.buttons[7] == 1:
             self.move_motor(4, 100*self.power)
             self.get_logger().info("chain forward")
         # button down
-        elif msg.button[5] == 1:
+        elif msg.buttons[5] == 1:
             self.move_motor(4, -100*self.power)
             self.get_logger().info("chain backward")
         else:
