@@ -20,6 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            "cam_fb = whale_ctl.cam_fb:main",
             'motor_driver =  whale_ctl.motor_driver_node:main',
             'motor_pwm_toggle = whale_ctl.motor_pwm_toggle:main',
             'motor_pwm_gradient = whale_ctl.motor_pwm_gradient:main',
