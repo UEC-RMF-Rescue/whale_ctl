@@ -48,10 +48,16 @@ class ActuatorDriver(Node):
 
         # ステップ2: 行列変換 → 正規化された -1〜1リスト
         wheel_speeds = generate_motor_cmd(v_x, v_y, v_yaw)
+        self.get_logger().info(f"cmd: {wheel_speeds[0]}, {wheel_speeds[1]}, {wheel_speeds[2]}, {wheel_speeds[3]}")
+
+        i=0
+        for vel in wheel_speeds:
+            self.move_motor(i, vel)
+            i+=1
 
         # ステップ3: ランピングしてモーターへ vel 指令
         # step3: move motor according to moto cmd
-        for motor_id, norm_vel in enumerate(wheel_speeds):
+        # for motor_id, norm_vel in enumerate(wheel_speeds):
             # target = norm_vel * 100  # -100〜100
             # curr = self.current_vel[motor_id]
             # diff = target - curr
@@ -62,8 +68,8 @@ class ActuatorDriver(Node):
             #     curr += self.ramp_step * (1 if diff > 0 else -1)
             # self.current_vel[motor_id] = curr
             # self.move_motor(motor_id, curr)
-            self.move_motor(motor_id, wheel_speeds[motor_id])
-            self.get_logger().info("move motor at {wheel_speeds[motor_id]}")
+         #    self.move_motor(motor_id, wheel_speeds[motor_id])
+         #    self.get_logger().info("move motor at {wheel_speeds[motor_id]}")
         
 
     def move_motor(self, motor_id: int, vel: float):
